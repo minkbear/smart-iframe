@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Strict Mode</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .console {
+            background: #1e1e1e;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            height: 200px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Strict Mode Validation</h1>
+        
+        <div class="info">
+            <strong>Test Goal:</strong> Test Laravel strict mode validation in Smart Iframe.
+            <br><strong>Expected:</strong> When clicking "Force Error", validation errors should be detected and the iframe should reload with error parameters (NOT redirect main page).
+            <br><strong>Success Redirect:</strong> Only when form is submitted successfully should it redirect to Google.
+        </div>
+
+        <div class="test-section">
+            <h2>Laravel Form with Strict Validation</h2>
+            <p>Click "Force Error" to test validation. The iframe should reload with errors, not redirect the main page.</p>
+            
+            <div class="smartIframe" 
+                 data-src="test-laravel-form.html?redirect=https%3A%2F%2Fgoogle.com"
+                 data-laravel-mode="true"
+                 data-validation-detection="strict"
+                 data-error-params="errors,validation_status=error,status=error"
+                 data-success-params="status=success,success=1,submitted=true"
+                 data-initial-height="1000"
+                 data-max-height="1000">
+            </div>
+            
+            <div class="console" id="console">
+                <div>[SYSTEM] Console initialized...</div>
+            </div>
+            
+            <div style="margin-top: 15px;">
+                <button onclick="clearConsole()" style="background: #f44; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">
+                    🗑️ Clear Console
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Smart Iframe Script -->
+    <script src="src/smart-iframe.js"></script>
+    
+    <script>
+        function log(message, type = 'info') {
+            const consoleEl = document.getElementById('console');
+            const entry = document.createElement('div');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            let color = '#0f0';
+            switch(type) {
+                case 'error': color = '#f44'; break;
+                case 'warning': color = '#fa0'; break;
+                case 'success': color = '#4f4'; break;
+            }
+            
+            entry.innerHTML = `<span style="color: #888">[${timestamp}]</span> <span style="color: ${color}">${message}</span>`;
+            consoleEl.appendChild(entry);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+
+        
+        function clearConsole() {
+            document.getElementById('console').innerHTML = '<div>[SYSTEM] Console cleared...</div>';
+            log('Console cleared', 'success');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            log('Page loaded successfully', 'success');
+            
+            // Monitor all smart iframe events
+            window.smartIframes.on('iframe:ready', (data) => {
+                log('Iframe ready', 'success');
+            });
+            
+            window.smartIframes.on('iframe:form-validation-error', (data) => {
+                log('✅ Form validation error detected - redirect blocked!', 'success');
+                log(`Method: ${data.method || 'unknown'}`, 'info');
+                log(`Blocked redirect: ${data.blockedRedirect || 'none'}`, 'warning');
+            });
+            
+            window.smartIframes.on('iframe:redirect', (data) => {
+                log(`⚠️ REDIRECT HAPPENING to: ${data.url}`, 'error');
+                log('This should NOT happen with validation errors!', 'error');
+            });
+            
+            window.smartIframes.on('iframe:navigation-detected', (data) => {
+                log(`Navigation detected (count: ${data.redirectCount})`, 'info');
+            });
+            
+            window.smartIframes.on('iframe:form-result', (data) => {
+                if (data.success) {
+                    log('Form result: SUCCESS', 'success');
+                } else {
+                    log('Form result: VALIDATION ERROR', 'warning');
+                }
+            });
+            
+            window.smartIframes.on('iframe:debug-info', (data) => {
+                const debugData = data.debugData;
+                if (debugData.laravelMode) {
+                    log(`Laravel detection: ${debugData.laravelResult}`, 'info');
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>

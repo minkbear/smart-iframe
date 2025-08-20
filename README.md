@@ -1,6 +1,6 @@
-# Smart Iframe for WordPress
+# Smart Iframe
 
-Smart Iframe เป็น JavaScript library ที่ช่วยให้การใช้งาน iframe ใน WordPress มีประสิทธิภาพมากขึ้น พร้อมฟีเจอร์ auto-resize, redirect handling และการจัดการ cross-origin iframe
+Smart Iframe เป็น JavaScript library ที่ช่วยให้การใช้งาน iframe มีประสิทธิภาพมากขึ้น พร้อมฟีเจอร์ auto-resize, redirect handling, Laravel integration และการจัดการ cross-origin iframe
 
 ## 📚 เอกสารทั้งหมด
 
@@ -9,21 +9,27 @@ Smart Iframe เป็น JavaScript library ที่ช่วยให้ก�
 
 ### สำหรับนักพัฒนา (Technical)
 - **[WordPress Integration Guide](docs/wordpress-integration.md)** - คู่มือการติดตั้งและพัฒนา plugin แบบละเอียด
+- **[Laravel Integration Guide](docs/laravel-integration.md)** - คู่มือการใช้งานกับ Laravel forms และ validation
+- **[Laravel Quick Start](docs/LARAVEL-QUICK-START.md)** - เริ่มใช้งาน Laravel ใน 5 นาที
+- **[Laravel Examples](docs/laravel-examples.md)** - ตัวอย่างการใช้งานจริงกับ Laravel
 
 ## ✨ Features
 
 - 🔄 **Auto-Resize**: ปรับขนาดความสูง iframe อัตโนมัติตามเนื้อหา
 - 🚀 **Auto-Redirect**: จัดการ redirect จาก iframe ไปยังหน้าหลักอัตโนมัติ
 - 🛡️ **Cross-Origin Support**: ทำงานได้กับ iframe จากเว็บไซต์ภายนอก
+- 🔥 **Laravel Integration**: รองรับ Laravel validation detection และ form handling พร้อม strict mode
 - ⚡ **Performance Optimized**: โหลดเร็ว ใช้ทรัพยากรน้อย
 - 🎯 **Easy Integration**: ติดตั้งง่าย ใช้งานง่าย
+- 🧪 **Debug Mode**: ระบบ debug ที่ละเอียดสำหรับการ troubleshoot
 
 ## 🚀 Quick Start
 
 ต้องการเริ่มใช้งานเลย? เลือกตามความต้องการของคุณ:
 
 - **ผู้ใช้ทั่วไป**: อ่าน [วิธีใช้งานง่าย ๆ](docs/WORDPRESS-SIMPLE.md) - เพียง 3 ขั้นตอน copy-paste
-- **นักพัฒนา**: อ่าน [WordPress Integration Guide](docs/wordpress-integration.md) - สร้าง plugin และปรับแต่งขั้นสูง
+- **นักพัฒนา WordPress**: อ่าน [WordPress Integration Guide](docs/wordpress-integration.md) - สร้าง plugin และปรับแต่งขั้นสูง
+- **นักพัฒนา Laravel**: อ่าน [Laravel Quick Start](docs/LARAVEL-QUICK-START.md) - เริ่มใช้งานใน 5 นาที
 
 ## 📦 Installation
 
@@ -152,9 +158,10 @@ new SmartIframePlugin();
 
 ## ⚙️ Configuration Options
 
+### General Options
 | Attribute | Default | Description |
 |-----------|---------|-------------|
-| `data-smart-iframe` | - | URL ของ iframe (required) |
+| `data-src` | - | URL ของ iframe (required) |
 | `data-initial-height` | `200` | ความสูงเริ่มต้น (px) |
 | `data-max-height` | `null` | ความสูงสูงสุด (px) |
 | `data-min-height` | `200` | ความสูงต่ำสุด (px) |
@@ -164,6 +171,15 @@ new SmartIframePlugin();
 | `data-scrolling` | `no` | iframe scrolling attribute |
 | `data-sandbox` | `allow-scripts allow-same-origin allow-forms` | iframe sandbox |
 | `data-title` | `Smart Iframe` | iframe title สำหรับ accessibility |
+
+### Laravel-Specific Options
+| Attribute | Default | Description |
+|-----------|---------|-------------|
+| `data-laravel-mode` | `false` | เปิดใช้งาน Laravel integration |
+| `data-validation-detection` | `auto` | โหมดการตรวจจับ validation (`auto`, `strict`, `debug`, `off`) |
+| `data-error-params` | `errors,validation_status=error,status=error` | พารามิเตอร์ที่บ่งบอก validation error |
+| `data-success-params` | `status=success,success=1,submitted=true` | พารามิเตอร์ที่บ่งบอก form success |
+| `data-validation-timing` | `500` | เวลาขั้นต่ำ (ms) สำหรับการตรวจจับ validation error |
 
 ## 🎯 Use Cases
 
