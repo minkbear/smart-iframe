@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Form - Without Helper Script</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #fd7e14 0%, #f0ad4e 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .helper-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #fd7e14;
+            box-shadow: 0 0 0 3px rgba(253, 126, 20, 0.1);
+        }
+        
+        .btn {
+            background: #fd7e14;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #e0670e;
+        }
+        
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .warning-info {
+            margin-top: 20px;
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .warning-info h3 {
+            margin-top: 0;
+            color: #856404;
+        }
+        
+        .nav-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .url-display {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+        
+        .limitation-list {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        
+        .limitation-list h4 {
+            color: #721c24;
+            margin-top: 0;
+        }
+        
+        .limitation-list ul {
+            color: #721c24;
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <div class="header">
+            <h1>📝 Test Form</h1>
+            <div class="helper-badge">⚠️ Without Helper Script</div>
+        </div>
+        
+        <div class="warning-info">
+            <h3>⚠️ Limited Functionality Warning</h3>
+            <p><strong>Current URL:</strong></p>
+            <div class="url-display" id="current-url">Loading...</div>
+            <p><strong>UUID Parameter:</strong> <span id="uuid-param">Not found</span></p>
+            <p><strong>Helper Script Status:</strong> <span style="color: #dc3545; font-weight: bold;">Not Installed ❌</span></p>
+        </div>
+        
+        <div class="limitation-list">
+            <h4>❌ Features NOT Available (No Helper Script):</h4>
+            <ul>
+                <li>Real-time URL change detection</li>
+                <li>Form submission notifications</li>
+                <li>Validation error detection</li>
+                <li>Two-way communication with parent</li>
+                <li>Advanced resize detection</li>
+            </ul>
+        </div>
+        
+        <div class="limitation-list" style="background: #e7f3ff; border-color: #bee5eb;">
+            <h4 style="color: #0c5460;">✅ Features Still Available (Fallback Mode):</h4>
+            <ul style="color: #0c5460;">
+                <li>Basic iframe load detection</li>
+                <li>Progressive height adjustment</li>
+                <li>Load counting (multiple loads = navigation)</li>
+                <li>URL parameter-based redirect detection</li>
+            </ul>
+        </div>
+        
+        <form id="test-form" action="#" method="POST">
+            <div class="form-group">
+                <label for="name">ชื่อ-นามสกุล *</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">อีเมล *</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">เบอร์โทรศัพท์</label>
+                <input type="tel" id="phone" name="phone">
+            </div>
+            
+            <div class="form-group">
+                <label for="position">ตำแหน่งที่สนใจ</label>
+                <select id="position" name="position">
+                    <option value="">เลือกตำแหน่ง</option>
+                    <option value="developer">นักพัฒนาซอฟต์แวร์</option>
+                    <option value="designer">นักออกแบบ</option>
+                    <option value="marketing">นักการตลาด</option>
+                    <option value="sales">นักขาย</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="message">ข้อความเพิ่มเติม</label>
+                <textarea id="message" name="message" rows="4"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="btn" id="submit-btn">ส่งใบสมัคร</button>
+            </div>
+        </form>
+        
+        <div id="status" class="status" style="display: none;"></div>
+        
+        <div class="nav-buttons">
+            <button class="btn-secondary" onclick="simulateNavigation()">🔄 Simulate Navigation (Load)</button>
+            <button class="btn-secondary" onclick="navigateWithRedirectParam()">📄 Navigate with Redirect Param</button>
+            <button class="btn-secondary" onclick="testFallbackResize()">📏 Test Fallback Resize</button>
+        </div>
+        
+        <div class="warning-info" style="margin-top: 20px;">
+            <h3>🧪 How Fallback Mode Works</h3>
+            <p>Without the helper script, Smart Iframe v2 can only detect:</p>
+            <ul>
+                <li><strong>Page Loads:</strong> When this page loads/reloads multiple times</li>
+                <li><strong>URL Parameters:</strong> Redirect URLs in ?p= or ?redirect= parameters</li>
+                <li><strong>Progressive Resize:</strong> Gradual height increase based on user interaction</li>
+            </ul>
+            <p>This demonstrates the difference between full functionality (with helper) vs limited fallback mode.</p>
+        </div>
+    </div>
+
+    <!-- NO iframe-injector.js script here - simulating pages without helper -->
+    
+    <script>
+        // Update debug info
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('current-url').textContent = window.location.href;
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const uuid = urlParams.get('uuid');
+            document.getElementById('uuid-param').textContent = uuid || 'Not found';
+            
+            console.log('📄 Page loaded WITHOUT iframe-injector.js');
+            console.log('UUID from URL:', uuid || 'Not found');
+            console.log('⚠️ This page simulates an iframe without helper script');
+        });
+        
+        // Form handling (basic, no postMessage communication)
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('test-form');
+            const submitBtn = document.getElementById('submit-btn');
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'กำลังส่ง...';
+                
+                console.log('📝 Form submitted (no postMessage will be sent)');
+                
+                // Simulate form processing
+                setTimeout(() => {
+                    const randomSuccess = Math.random() > 0.4; // 60% success rate
+                    
+                    if (randomSuccess) {
+                        // Simulate successful submission with page navigation
+                        showStatus('✅ ส่งใบสมัครเรียบร้อยแล้ว! (จำลองการนำทาง)', 'success');
+                        
+                        setTimeout(() => {
+                            // This would normally be a server redirect or page reload
+                            // In fallback mode, parent can only detect this as "multiple loads"
+                            window.location.reload();
+                        }, 2000);
+                        
+                    } else {
+                        // Simulate validation error by reloading with error params
+                        const errorUrl = new URL(window.location.href);
+                        errorUrl.searchParams.set('validation_status', 'error');
+                        errorUrl.searchParams.set('errors', '1');
+                        
+                        showStatus('❌ เกิดข้อผิดพลาด! หน้าจะรีโหลดพร้อมพารามิเตอร์ error', 'error');
+                        
+                        setTimeout(() => {
+                            window.location.href = errorUrl.toString();
+                        }, 2000);
+                    }
+                }, 2000);
+            });
+        });
+        
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status status-${type}`;
+            status.style.display = 'block';
+        }
+        
+        function simulateNavigation() {
+            showStatus('🔄 จำลองการนำทาง - หน้าจะ reload', 'success');
+            console.log('🔄 Simulating navigation by reloading page');
+            
+            setTimeout(() => {
+                // This simulates what happens when forms submit to different pages
+                // Parent iframe can detect this as "load count increase"
+                window.location.reload();
+            }, 1500);
+        }
+        
+        function navigateWithRedirectParam() {
+            // Simulate a form that includes redirect URL in parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const currentRedirect = urlParams.get('p') || urlParams.get('redirect');
+            
+            if (currentRedirect) {
+                showStatus('📄 Redirect parameter detected! Parent should handle this.', 'success');
+                console.log('📄 Redirect URL found in parameters:', decodeURIComponent(currentRedirect));
+            } else {
+                // Add a redirect parameter to simulate what Laravel/PHP forms often do
+                const newUrl = new URL(window.location.href);
+                newUrl.searchParams.set('p', encodeURIComponent('https://example.com/thank-you'));
+                
+                showStatus('📄 เพิ่มพารามิเตอร์ redirect - Parent สามารถใช้ fallback detection', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = newUrl.toString();
+                }, 1500);
+            }
+        }
+        
+        function testFallbackResize() {
+            showStatus('📏 จำลอง content ที่ใหญ่ขึ้น (ไม่มี postMessage)', 'success');
+            
+            // Add content to simulate page growth
+            const extraContent = document.createElement('div');
+            extraContent.innerHTML = `
+                <div style="margin: 20px 0; padding: 20px; background: #e9ecef; border-radius: 5px;">
+                    <h4>📏 Extra Content Added</h4>
+                    <p>This content makes the page taller. In fallback mode, Smart Iframe v2 will use progressive resize to gradually increase the iframe height.</p>
+                    <p>Without helper script, the parent cannot detect the exact content height, so it uses:</p>
+                    <ul>
+                        <li>Progressive height increases (every few seconds)</li>
+                        <li>User interaction triggers (hover, click)</li>
+                        <li>Intersection observer (when iframe becomes visible)</li>
+                    </ul>
+                    <div style="height: 200px; background: linear-gradient(45deg, #f8f9fa, #e9ecef); border-radius: 5px; display: flex; align-items: center; justify-content: center; margin-top: 10px;">
+                        <strong>Extra Height Content</strong>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(extraContent);
+            
+            console.log('📏 Added extra content - parent should use progressive resize');
+        }
+        
+        // Check for error parameters (simulating Laravel validation detection without helper)
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const hasValidationError = urlParams.get('validation_status') === 'error' || 
+                                      urlParams.get('errors') === '1';
+            
+            if (hasValidationError) {
+                showStatus('❌ มีข้อผิดพลาดจากพารามิเตอร์ URL (ตรวจพบโดย fallback mode)', 'error');
+                console.log('❌ Validation error detected from URL parameters (fallback detection)');
+            }
+        });
+    </script>
+</body>
+</html>

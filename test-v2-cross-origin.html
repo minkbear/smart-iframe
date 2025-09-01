@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Iframe v2 - Cross-Origin Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            margin: 0 0 10px 0;
+        }
+        
+        .version-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .test-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .test-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .test-description {
+            color: #666;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+        }
+        
+        .iframe-container {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            background: #fafafa;
+            position: relative;
+        }
+        
+        .iframe-label {
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: white;
+            padding: 0 10px;
+            color: #667eea;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .console-output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        
+        .console-line {
+            margin: 5px 0;
+            line-height: 1.5;
+        }
+        
+        .console-success {
+            color: #4ec9b0;
+        }
+        
+        .console-warning {
+            color: #ffcc00;
+        }
+        
+        .console-error {
+            color: #f48771;
+        }
+        
+        .console-info {
+            color: #569cd6;
+        }
+        
+        .controls {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+        
+        .btn-secondary {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #38a169;
+        }
+        
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .status-connected {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .status-waiting {
+            background: #feebc8;
+            color: #7c2d12;
+        }
+        
+        .status-error {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .info-box {
+            background: #e6fffa;
+            border: 1px solid #81e6d9;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .warning-box {
+            background: #fffdf7;
+            border: 1px solid #f6ad55;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Smart Iframe v2 - Cross-Origin Test</h1>
+        <span class="version-badge">Version 2.0</span>
+    </div>
+
+    <!-- Test 1: Cross-Origin with Helper Script -->
+    <div class="test-section">
+        <div class="test-title">Test 1: Cross-Origin iframe WITH Helper Script ✅</div>
+        <div class="test-description">
+            <strong>Expected Behavior:</strong> Full functionality with postMessage communication.<br>
+            No console errors. All events (resize, redirect, form submission) work properly.<br>
+            <strong>Setup:</strong> iframe page includes iframe-injector.js
+        </div>
+        
+        <div class="iframe-container">
+            <span class="iframe-label">Cross-Origin iframe</span>
+            <div class="smartIframe" 
+                 id="test1"
+                 data-src="https://app.ofonline.net/careers/?p=%E0%B8%AB%E0%B8%B1%E0%B8%A7%E0%B8%AB%E0%B8%99%E0%B9%89%E0%B8%B2%20%E0%B8%8A%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B9%81%E0%B8%AD%E0%B8%A3%E0%B9%8C&fw=OutsourcingFactory.co.th&redirect=https://www.outsourcingfactory.co.th/%E0%B8%A3%E0%B8%B1%E0%B8%9A%E0%B8%AA%E0%B8%A1%E0%B8%B1%E0%B8%84%E0%B8%A3%E0%B8%87%E0%B8%B2%E0%B8%99/thank-you.html"
+                 data-allow-resize="true"
+                 data-allow-redirect="true"
+                 data-allow-events="true"
+                 data-cross-origin="true"
+                 data-debug-mode="true"
+                 data-initial-height="400">
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-primary" onclick="testResize('test1')">Test Resize</button>
+            <button class="btn btn-secondary" onclick="testMessage('test1')">Send Message</button>
+            <button class="btn btn-danger" onclick="removeIframe('test1')">Remove iframe</button>
+        </div>
+        
+        <div id="status1" class="status-indicator status-waiting">
+            <span class="status-dot">⏳</span> Waiting for connection...
+        </div>
+        
+        <div class="console-output" id="console1">
+            <div class="console-line console-info">Console output will appear here...</div>
+        </div>
+    </div>
+
+    <!-- Test 2: Cross-Origin without Helper Script -->
+    <div class="test-section">
+        <div class="test-title">Test 2: Cross-Origin iframe WITHOUT Helper Script ⚠️</div>
+        <div class="test-description">
+            <strong>Expected Behavior:</strong> Limited functionality with graceful fallback.<br>
+            No console errors (unlike v1). Shows helpful debug messages.<br>
+            <strong>Setup:</strong> iframe page does NOT include iframe-injector.js
+        </div>
+        
+        <div class="iframe-container">
+            <span class="iframe-label">Cross-Origin iframe (No Helper)</span>
+            <div class="smartIframe" 
+                 id="test2"
+                 data-src="https://app.ofonline.net/careers/?p=%E0%B8%AB%E0%B8%B1%E0%B8%A7%E0%B8%AB%E0%B8%99%E0%B9%89%E0%B8%B2%20%E0%B8%8A%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B9%81%E0%B8%AD%E0%B8%A3%E0%B9%8C&fw=OutsourcingFactory.co.th&redirect=https://www.outsourcingfactory.co.th/%E0%B8%A3%E0%B8%B1%E0%B8%9A%E0%B8%AA%E0%B8%A1%E0%B8%B1%E0%B8%84%E0%B8%A3%E0%B8%87%E0%B8%B2%E0%B8%99/thank-you.html"
+                 data-allow-resize="true"
+                 data-allow-redirect="true"
+                 data-cross-origin="true"
+                 data-debug-mode="true"
+                 data-initial-height="400">
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-primary" onclick="checkStatus('test2')">Check Status</button>
+            <button class="btn btn-secondary" onclick="testFallback('test2')">Test Fallback</button>
+        </div>
+        
+        <div id="status2" class="status-indicator status-waiting">
+            <span class="status-dot">⏳</span> Waiting for connection...
+        </div>
+        
+        <div class="console-output" id="console2">
+            <div class="console-line console-info">Console output will appear here...</div>
+        </div>
+    </div>
+
+    <!-- Test 3: Same-Origin iframe (for comparison) -->
+    <div class="test-section">
+        <div class="test-title">Test 3: Same-Origin iframe (For Comparison) ✅</div>
+        <div class="test-description">
+            <strong>Expected Behavior:</strong> Full functionality with direct access.<br>
+            Can access contentWindow.location directly. All features work.<br>
+            <strong>Setup:</strong> iframe from same domain
+        </div>
+        
+        <div class="iframe-container">
+            <span class="iframe-label">Same-Origin iframe</span>
+            <div class="smartIframe" 
+                 id="test3"
+                 data-src="/local-form.html"
+                 data-allow-resize="true"
+                 data-allow-redirect="true"
+                 data-debug-mode="true"
+                 data-initial-height="400">
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-primary" onclick="checkUrl('test3')">Check URL</button>
+            <button class="btn btn-secondary" onclick="testDirect('test3')">Test Direct Access</button>
+        </div>
+        
+        <div id="status3" class="status-indicator status-waiting">
+            <span class="status-dot">⏳</span> Waiting for connection...
+        </div>
+        
+        <div class="console-output" id="console3">
+            <div class="console-line console-info">Console output will appear here...</div>
+        </div>
+    </div>
+
+    <!-- Info Box -->
+    <div class="test-section">
+        <div class="test-title">📊 v2 Improvements Over v1</div>
+        <div class="info-box">
+            <h4>✅ What's Better in v2:</h4>
+            <ul>
+                <li><strong>No Console Errors:</strong> v2 doesn't try to access cross-origin URLs directly</li>
+                <li><strong>Smart Detection:</strong> Automatically detects same-origin vs cross-origin</li>
+                <li><strong>Graceful Fallback:</strong> Works even without helper script (limited mode)</li>
+                <li><strong>Better Debug:</strong> Clear messages about what's happening</li>
+                <li><strong>Industry Standard:</strong> Follows Pipedrive's proven approach</li>
+            </ul>
+        </div>
+        
+        <div class="warning-box">
+            <h4>⚠️ Note for Testing:</h4>
+            <p>To properly test cross-origin scenarios:</p>
+            <ol>
+                <li>Run parent page on one port: <code>python -m http.server 8000</code></li>
+                <li>Run iframe pages on another port: <code>python -m http.server 8001</code></li>
+                <li>Or use ngrok to create different domains</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Load Smart Iframe v2 -->
+    <script src="src/smart-iframe-v2.js"></script>
+    
+    <script>
+        // Helper function to log to console output
+        function logToConsole(testId, message, type = 'info') {
+            const consoleEl = document.getElementById(`console${testId.slice(-1)}`);
+            const line = document.createElement('div');
+            line.className = `console-line console-${type}`;
+            line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            consoleEl.appendChild(line);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+        
+        // Update status indicator
+        function updateStatus(testId, status, message) {
+            const statusEl = document.getElementById(`status${testId.slice(-1)}`);
+            statusEl.className = `status-indicator status-${status}`;
+            statusEl.innerHTML = `<span class="status-dot">${
+                status === 'connected' ? '✅' : 
+                status === 'waiting' ? '⏳' : 
+                '❌'
+            }</span> ${message}`;
+        }
+        
+        // Listen for iframe events
+        if (window.smartIframes) {
+            // Ready event
+            smartIframes.on('iframe:ready', (data) => {
+                const testNum = data.uuid.includes('test1') ? '1' : 
+                               data.uuid.includes('test2') ? '2' : '3';
+                logToConsole(`test${testNum}`, 'iframe ready!', 'success');
+                updateStatus(`test${testNum}`, 'connected', 'Connected and ready');
+            });
+            
+            // URL update event (from postMessage)
+            smartIframes.on('iframe:url-update', (data) => {
+                const testNum = data.uuid.includes('test1') ? '1' : 
+                               data.uuid.includes('test2') ? '2' : '3';
+                logToConsole(`test${testNum}`, `URL updated: ${data.url}`, 'info');
+            });
+            
+            // Message received event
+            smartIframes.on('iframe:message-received', (data) => {
+                const testNum = data.uuid.includes('test1') ? '1' : 
+                               data.uuid.includes('test2') ? '2' : '3';
+                logToConsole(`test${testNum}`, 'Message received from iframe', 'success');
+                updateStatus(`test${testNum}`, 'connected', 'Helper script detected!');
+            });
+            
+            // Cross-origin detected
+            smartIframes.on('iframe:cross-origin-detected', (data) => {
+                const testNum = data.uuid.includes('test1') ? '1' : 
+                               data.uuid.includes('test2') ? '2' : '3';
+                logToConsole(`test${testNum}`, 'Cross-origin iframe detected', 'warning');
+            });
+            
+            // Possible navigation (fallback)
+            smartIframes.on('iframe:possible-navigation', (data) => {
+                const testNum = data.uuid.includes('test1') ? '1' : 
+                               data.uuid.includes('test2') ? '2' : '3';
+                logToConsole(`test${testNum}`, `Possible navigation detected (load count: ${data.loadCount})`, 'warning');
+            });
+        }
+        
+        // Test functions
+        function testResize(testId) {
+            logToConsole(testId, 'Testing resize functionality...', 'info');
+            // Send resize message to iframe
+            const uuid = document.getElementById(testId).id;
+            if (window.smartIframes) {
+                smartIframes.sendToIframe(uuid, 'RESIZE_REQUEST', { height: 600 });
+            }
+        }
+        
+        function testMessage(testId) {
+            logToConsole(testId, 'Sending test message to iframe...', 'info');
+            const uuid = document.getElementById(testId).id;
+            if (window.smartIframes) {
+                smartIframes.sendToIframe(uuid, 'TEST_MESSAGE', { 
+                    message: 'Hello from parent!',
+                    timestamp: Date.now()
+                });
+            }
+        }
+        
+        function removeIframe(testId) {
+            logToConsole(testId, 'Removing iframe...', 'warning');
+            const uuid = document.getElementById(testId).id;
+            if (window.smartIframes) {
+                smartIframes.removeIframe(uuid);
+                updateStatus(testId, 'error', 'iframe removed');
+            }
+        }
+        
+        function checkStatus(testId) {
+            logToConsole(testId, 'Checking iframe status...', 'info');
+            const uuid = document.getElementById(testId).id;
+            if (window.smartIframes) {
+                const iframeData = smartIframes.getIframe(uuid);
+                if (iframeData) {
+                    logToConsole(testId, `Cross-origin: ${iframeData.isCrossOrigin}`, 'info');
+                    logToConsole(testId, `Message received: ${iframeData.messageReceived}`, 'info');
+                    logToConsole(testId, `Ready: ${iframeData.isReady}`, 'info');
+                }
+            }
+        }
+        
+        function testFallback(testId) {
+            logToConsole(testId, 'Testing fallback mode...', 'warning');
+            logToConsole(testId, 'Without helper script, only limited functionality available', 'warning');
+        }
+        
+        function checkUrl(testId) {
+            logToConsole(testId, 'Checking iframe URL (same-origin only)...', 'info');
+            const uuid = document.getElementById(testId).id;
+            if (window.smartIframes) {
+                const iframeData = smartIframes.getIframe(uuid);
+                if (iframeData && !iframeData.isCrossOrigin) {
+                    try {
+                        const url = iframeData.iframe.contentWindow.location.href;
+                        logToConsole(testId, `Current URL: ${url}`, 'success');
+                    } catch (e) {
+                        logToConsole(testId, 'Cannot access URL (cross-origin)', 'error');
+                    }
+                }
+            }
+        }
+        
+        function testDirect(testId) {
+            logToConsole(testId, 'Testing direct access (same-origin only)...', 'info');
+            const uuid = document.getElementById(testId).id;
+            if (window.smartIframes) {
+                const iframeData = smartIframes.getIframe(uuid);
+                if (iframeData && !iframeData.isCrossOrigin) {
+                    try {
+                        const doc = iframeData.iframe.contentDocument;
+                        logToConsole(testId, `Document title: ${doc.title}`, 'success');
+                        logToConsole(testId, `Body height: ${doc.body.scrollHeight}px`, 'success');
+                    } catch (e) {
+                        logToConsole(testId, 'Cannot access document (cross-origin)', 'error');
+                    }
+                }
+            }
+        }
+        
+        // Initial log messages
+        setTimeout(() => {
+            logToConsole('test1', 'Waiting for cross-origin iframe with helper script...', 'info');
+            logToConsole('test2', 'Waiting for cross-origin iframe without helper script...', 'info');
+            logToConsole('test3', 'Waiting for same-origin iframe...', 'info');
+        }, 500);
+    </script>
+</body>
+</html>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Form - Same Origin</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .helper-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+        
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+        }
+        
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .debug-info {
+            margin-top: 20px;
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .debug-info h3 {
+            margin-top: 0;
+            color: #007bff;
+        }
+        
+        .nav-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .url-display {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+        
+        .advantage-list {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        
+        .advantage-list h4 {
+            color: #155724;
+            margin-top: 0;
+        }
+        
+        .advantage-list ul {
+            color: #155724;
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <div class="header">
+            <h1>📝 Test Form</h1>
+            <div class="helper-badge">🏠 Same Origin</div>
+        </div>
+        
+        <div class="debug-info">
+            <h3>🔍 Debug Information (Same-Origin)</h3>
+            <p><strong>Current URL:</strong></p>
+            <div class="url-display" id="current-url">Loading...</div>
+            <p><strong>UUID Parameter:</strong> <span id="uuid-param">Not found</span></p>
+            <p><strong>Origin Status:</strong> <span style="color: #28a745; font-weight: bold;">Same Origin ✅</span></p>
+            <p><strong>Direct Access Available:</strong> <span style="color: #28a745; font-weight: bold;">Yes ✅</span></p>
+        </div>
+        
+        <div class="advantage-list">
+            <h4>✅ Same-Origin Advantages:</h4>
+            <ul>
+                <li>Full access to iframe content</li>
+                <li>Real-time URL monitoring</li>
+                <li>Direct DOM access for height calculation</li>
+                <li>Immediate form submission detection</li>
+                <li>No need for helper scripts or postMessage</li>
+                <li>Perfect scroll height detection</li>
+                <li>Instant navigation detection</li>
+            </ul>
+        </div>
+        
+        <form id="test-form" action="#" method="POST">
+            <div class="form-group">
+                <label for="name">ชื่อ-นามสกุล *</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">อีเมล *</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">เบอร์โทรศัพท์</label>
+                <input type="tel" id="phone" name="phone">
+            </div>
+            
+            <div class="form-group">
+                <label for="position">ตำแหน่งที่สนใจ</label>
+                <select id="position" name="position">
+                    <option value="">เลือกตำแหน่ง</option>
+                    <option value="developer">นักพัฒนาซอฟต์แวร์</option>
+                    <option value="designer">นักออกแบบ</option>
+                    <option value="marketing">นักการตลาด</option>
+                    <option value="sales">นักขาย</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="message">ข้อความเพิ่มเติม</label>
+                <textarea id="message" name="message" rows="4"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="btn" id="submit-btn">ส่งใบสมัคร</button>
+            </div>
+        </form>
+        
+        <div id="status" class="status" style="display: none;"></div>
+        
+        <div class="nav-buttons">
+            <button class="btn-secondary" onclick="simulateSuccess()">🎉 Simulate Success</button>
+            <button class="btn-secondary" onclick="simulateError()">❌ Simulate Error</button>
+            <button class="btn-secondary" onclick="navigateToPage('/success')">📄 Navigate to Success</button>
+            <button class="btn-secondary" onclick="addContent()">📏 Add Content (Auto-Resize)</button>
+            <button class="btn-secondary" onclick="changeTitle()">📝 Change Title</button>
+        </div>
+        
+        <div class="debug-info" style="margin-top: 20px;">
+            <h3>🏠 Same-Origin Benefits</h3>
+            <p>Since this iframe is from the same origin as the parent:</p>
+            <ul>
+                <li><strong>No Security Restrictions:</strong> Parent can access all iframe content</li>
+                <li><strong>Perfect Height Detection:</strong> Can measure exact scrollHeight</li>
+                <li><strong>Real-time Monitoring:</strong> Can detect URL changes instantly</li>
+                <li><strong>No Helper Script Needed:</strong> Direct DOM access available</li>
+            </ul>
+            <p>This is the "gold standard" of iframe integration - everything works perfectly!</p>
+        </div>
+    </div>
+
+    <script>
+        // Update debug info
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('current-url').textContent = window.location.href;
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const uuid = urlParams.get('uuid');
+            document.getElementById('uuid-param').textContent = uuid || 'Not found';
+            
+            console.log('🏠 Same-origin page loaded');
+            console.log('UUID from URL:', uuid || 'Not found');
+            console.log('✅ Parent has full access to this iframe');
+        });
+        
+        // Form handling
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('test-form');
+            const submitBtn = document.getElementById('submit-btn');
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'กำลังส่ง...';
+                
+                console.log('📝 Form submitted (same-origin - parent can detect immediately)');
+                
+                // Simulate form processing
+                setTimeout(() => {
+                    const randomSuccess = Math.random() > 0.2; // 80% success rate
+                    
+                    if (randomSuccess) {
+                        showStatus('✅ ส่งใบสมัครเรียบร้อยแล้ว! กำลังเปลี่ยนเส้นทาง...', 'success');
+                        
+                        setTimeout(() => {
+                            // Simulate successful redirect
+                            const redirectUrl = new URL(window.location.href);
+                            redirectUrl.searchParams.set('status', 'success');
+                            redirectUrl.searchParams.set('submitted', 'true');
+                            window.history.pushState({}, '', redirectUrl);
+                            
+                            document.title = 'Success - Thank You!';
+                            document.querySelector('.header h1').textContent = '🎉 ขอบคุณสำหรับการสมัคร!';
+                            document.querySelector('.helper-badge').textContent = '🎉 Form Success';
+                            
+                            form.style.display = 'none';
+                            showStatus('🎉 ขอบคุณที่ส่งใบสมัคร! เราจะติดต่อกลับในเร็วๆ นี้', 'success');
+                        }, 1000);
+                        
+                    } else {
+                        // Simulate validation error
+                        const errorUrl = new URL(window.location.href);
+                        errorUrl.searchParams.set('validation_status', 'error');
+                        errorUrl.searchParams.set('errors', '1');
+                        window.history.pushState({}, '', errorUrl);
+                        
+                        showStatus('❌ เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาตรวจสอบข้อมูลแล้วลองใหม่', 'error');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'ส่งใบสมัคร';
+                    }
+                }, 2000);
+            });
+        });
+        
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status status-${type}`;
+            status.style.display = 'block';
+        }
+        
+        function simulateSuccess() {
+            const successUrl = new URL(window.location.href);
+            successUrl.searchParams.set('status', 'success');
+            successUrl.searchParams.delete('validation_status');
+            successUrl.searchParams.delete('errors');
+            window.history.pushState({}, '', successUrl);
+            showStatus('🎉 Simulated successful submission!', 'success');
+        }
+        
+        function simulateError() {
+            const errorUrl = new URL(window.location.href);
+            errorUrl.searchParams.set('validation_status', 'error');
+            errorUrl.searchParams.set('errors', '1');
+            errorUrl.searchParams.delete('status');
+            window.history.pushState({}, '', errorUrl);
+            showStatus('❌ Simulated validation error!', 'error');
+        }
+        
+        function navigateToPage(path) {
+            const newUrl = new URL(window.location.href);
+            newUrl.pathname = path;
+            newUrl.searchParams.set('from_form', 'true');
+            window.history.pushState({}, '', newUrl);
+            
+            document.title = 'Success Page';
+            document.querySelector('.header h1').textContent = '🎉 Success Page!';
+            showStatus('📄 Navigated to: ' + path, 'success');
+        }
+        
+        function addContent() {
+            const extraContent = document.createElement('div');
+            extraContent.innerHTML = `
+                <div style="margin: 20px 0; padding: 20px; background: #e3f2fd; border-radius: 5px; border-left: 4px solid #2196f3;">
+                    <h4>📏 Dynamic Content Added</h4>
+                    <p>This content makes the page taller. Since this is same-origin, the parent iframe loader can:</p>
+                    <ul>
+                        <li>✅ Detect the exact new height immediately</li>
+                        <li>✅ Resize the iframe to the perfect size</li>
+                        <li>✅ No guessing or progressive resizing needed</li>
+                    </ul>
+                    <div style="height: 150px; background: linear-gradient(135deg, #e3f2fd, #bbdefb); border-radius: 5px; display: flex; align-items: center; justify-content: center; margin-top: 10px;">
+                        <strong>Perfect Auto-Resize Content</strong>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(extraContent);
+            
+            showStatus('📏 Content added! Parent can detect exact height.', 'success');
+            console.log('📏 Added content - parent has perfect height detection');
+        }
+        
+        function changeTitle() {
+            const titles = [
+                '📝 Test Form - Same Origin',
+                '🔄 Title Changed!',
+                '✨ Dynamic Title Update',
+                '🏠 Same-Origin Benefits',
+                '📊 Perfect Integration'
+            ];
+            
+            const currentTitle = document.title;
+            const currentIndex = titles.indexOf(currentTitle);
+            const nextIndex = (currentIndex + 1) % titles.length;
+            
+            document.title = titles[nextIndex];
+            document.querySelector('.header h1').textContent = titles[nextIndex];
+            
+            showStatus('📝 Title changed! Parent can detect this immediately.', 'success');
+            console.log('📝 Title changed to:', titles[nextIndex]);
+        }
+    </script>
+</body>
+</html>
