@@ -5,9 +5,17 @@
   "main": "src/smart-iframe.js",
   "scripts": {
     "build": "npm run minify",
+    "build:v2": "npm run minify:v2",
     "minify": "terser src/smart-iframe.js -o dist/smart-iframe.min.js -c -m --source-map",
+    "minify:v2": "terser src/smart-iframe-v2.js -o dist/smart-iframe-v2.min.js -c -m --source-map",
     "dev": "npm run build -- --watch",
-    "test": "node test/test.js"
+    "dev:v2": "npm run build:v2 -- --watch",
+    "test": "node test/test.js",
+    "test:v2": "echo 'Open test-v2-functional.html in browser to test v2'",
+    "serve": "npx http-server -p 8000 -c-1",
+    "serve:parent": "npx http-server -p 8000 -c-1",
+    "serve:iframe": "npx http-server -p 8001 -c-1",
+    "serve:both": "npm run serve:parent & npm run serve:iframe"
   },
   "keywords": ["iframe", "responsive", "communication", "postmessage"],
   "author": "",
