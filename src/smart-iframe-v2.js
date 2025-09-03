@@ -521,31 +521,52 @@ class SmartIframeLoader {
             const originalSrc = iframeData.config.src;
             const expectedRedirectUrl = this.extractRedirectUrl(originalSrc);
             
-            // Check if URL indicates form submission success (contains thank-you or matches redirect)
-            const isThankYouPage = url.includes('thank-you') || url.includes('/thank') || url.includes('success');
-            const isRedirectMatch = expectedRedirectUrl && (
-                url === expectedRedirectUrl ||
-                new URL(url).pathname === new URL(expectedRedirectUrl, window.location.origin).pathname
-            );
+            // Check if URL matches the expected redirect URL (exact match or contains redirect domain/path)
+            let isRedirectMatch = false;
+            if (expectedRedirectUrl) {
+                try {
+                    const expectedUrl = new URL(expectedRedirectUrl);
+                    const currentUrl = new URL(url);
+                    
+                    // Check exact match
+                    if (url === expectedRedirectUrl) {
+                        isRedirectMatch = true;
+                    }
+                    // Check pathname match (same path different domain)
+                    else if (currentUrl.pathname === expectedUrl.pathname) {
+                        isRedirectMatch = true;
+                    }
+                    // Check if current URL contains the redirect domain
+                    else if (url.includes(expectedUrl.hostname)) {
+                        isRedirectMatch = true;
+                    }
+                    // Check if redirect URL contains thank-you and current URL also has thank-you
+                    else if (expectedUrl.pathname.includes('thank-you') && url.includes('thank-you')) {
+                        isRedirectMatch = true;
+                    }
+                } catch (e) {
+                    console.warn('Error parsing URLs for redirect match:', e);
+                }
+            }
             
-            if (expectedRedirectUrl && (iframeData.formSubmitted || isThankYouPage || isRedirectMatch)) {
+            if (expectedRedirectUrl && (iframeData.formSubmitted || isRedirectMatch)) {
                 console.log('Smart Iframe: Redirect detected via URL update:', {
                     current: url,
                     expected: expectedRedirectUrl,
                     formSubmitted: iframeData.formSubmitted,
-                    isThankYouPage: isThankYouPage,
                     isRedirectMatch: isRedirectMatch,
-                    trigger: iframeData.formSubmitted ? 'form_submitted' : 'success_page_detected'
+                    trigger: iframeData.formSubmitted ? 'form_submitted' : 'redirect_url_match'
                 });
                 
                 // Perform the redirect
                 this.performRedirect(uuid, expectedRedirectUrl);
-            } else if (!iframeData.formSubmitted && !isThankYouPage) {
+            } else if (!iframeData.formSubmitted && !isRedirectMatch) {
                 console.log('Smart Iframe: URL update detected but no success indicators:', {
                     url: url,
                     formSubmitted: iframeData.formSubmitted,
-                    isThankYouPage: isThankYouPage,
-                    hasRedirectUrl: !!expectedRedirectUrl
+                    isRedirectMatch: isRedirectMatch,
+                    hasRedirectUrl: !!expectedRedirectUrl,
+                    expectedRedirectUrl: expectedRedirectUrl
                 });
             }
         }
