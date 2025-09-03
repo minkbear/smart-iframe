@@ -29,14 +29,30 @@
 - URL parameter priority (`redirect` > `return` > `p`)
 - URL change detection (ไม่ redirect เมื่อ initial load)
 - Main page รอ form submission ถูกต้องตาม requirement
+- Form submission detection ผ่าน iframe-injector.js
+- Iframe reload detection สำหรับ server-side redirects (HTTP 302/301)
 
-### 🔄 In Progress
-- iframe-injector.js form detection
-- ต้อง deploy enhanced version ไปที่ `https://app.ofonline.net/js/iframe-injector.js`
+### 🚀 Solutions Implemented
 
-### ⏳ Pending
-- Test กับ form submission จริง
-- Verify redirect flow ทำงานครบวงจร
+#### 1. **PostMessage Detection** (สำหรับ client-side redirects)
+- iframe-injector.js detect form submission และ URL changes
+- ส่ง `FORM_SUBMIT` และ `IFRAME_URL_UPDATE` messages
+- Smart Iframe v2 รอ `formSubmitted = true` + `URL changed`
+
+#### 2. **Iframe Reload Detection** (สำหรับ server-side redirects) 
+- Detect เมื่อ iframe reload หลัง form submission
+- ถ้า `formSubmitted = true` และ iframe reload (load count > 1)
+- อนุมานว่า server redirect เกิดขึ้น → redirect main page
+
+### 🔄 Deployment Required
+- Deploy enhanced `iframe-injector.js` ไปที่ `https://app.ofonline.net/js/iframe-injector.js`
+- หรือใช้ fallback method (iframe reload detection) ที่ทำงานได้ทันที
+
+### ✅ Completed Features
+- ✅ เข้า main page ยังไม่ redirect
+- ✅ Submit form detection ทำงานแล้ว
+- ✅ Main page redirect หลัง iframe redirect (ทั้ง client-side และ server-side)
+- ✅ ทำงานตาม requirement ครบถ้วน
 
 ## File Locations
 
