@@ -86,10 +86,15 @@
             console.log('Smart Iframe Injector: Form submission message sent to parent:', formMessage);
         }
         
-        // Check for URL change after form submission
+        // Check for URL change after form submission with more frequent polling
+        setTimeout(sendUrlUpdate, 100);
+        setTimeout(sendUrlUpdate, 300);
         setTimeout(sendUrlUpdate, 500);
+        setTimeout(sendUrlUpdate, 800);
         setTimeout(sendUrlUpdate, 1000);
+        setTimeout(sendUrlUpdate, 1500);
         setTimeout(sendUrlUpdate, 2000);
+        setTimeout(sendUrlUpdate, 3000);
     }
     
     // Method 3b: Monitor for button clicks (fallback)
@@ -139,9 +144,20 @@
     
     // Method 4: Periodic URL check (fallback)
     let lastUrl = window.location.href;
+    
+    // More frequent check for redirects
     setInterval(function() {
         if (window.location.href !== lastUrl) {
-            console.log('Smart Iframe Injector: URL change detected via polling');
+            console.log('Smart Iframe Injector: URL change detected via polling (fast)');
+            lastUrl = window.location.href;
+            sendUrlUpdate();
+        }
+    }, 200);
+    
+    // Standard check as backup
+    setInterval(function() {
+        if (window.location.href !== lastUrl) {
+            console.log('Smart Iframe Injector: URL change detected via polling (standard)');
             lastUrl = window.location.href;
             sendUrlUpdate();
         }
