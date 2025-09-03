@@ -513,8 +513,8 @@ class SmartIframeLoader {
             this.checkLaravelValidation(uuid, url);
         }
         
-        // Check if this is a redirect to the expected URL
-        if (iframeData.config.allowRedirect) {
+        // Check if this is a redirect to the expected URL (only after form submission)
+        if (iframeData.config.allowRedirect && iframeData.formSubmitted) {
             // Extract the redirect URL from the original iframe src
             const originalSrc = iframeData.config.src;
             const expectedRedirectUrl = this.extractRedirectUrl(originalSrc);
@@ -529,15 +529,21 @@ class SmartIframeLoader {
                     currentUrl.pathname === expectedUrl.pathname ||
                     url.includes('thank-you')) {
                     
-                    console.log('Smart Iframe: Redirect detected via URL update:', {
+                    console.log('Smart Iframe: Redirect detected via URL update after form submission:', {
                         current: url,
-                        expected: expectedRedirectUrl
+                        expected: expectedRedirectUrl,
+                        formSubmitted: iframeData.formSubmitted
                     });
                     
                     // Perform the redirect
                     this.performRedirect(uuid, expectedRedirectUrl);
                 }
             }
+        } else if (iframeData.config.allowRedirect && !iframeData.formSubmitted) {
+            console.log('Smart Iframe: URL update detected but no form submission yet:', {
+                url: url,
+                formSubmitted: iframeData.formSubmitted
+            });
         }
     }
 
