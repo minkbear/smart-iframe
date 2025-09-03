@@ -512,6 +512,33 @@ class SmartIframeLoader {
         if (iframeData.config.laravelMode) {
             this.checkLaravelValidation(uuid, url);
         }
+        
+        // Check if this is a redirect to the expected URL
+        if (iframeData.config.allowRedirect) {
+            // Extract the redirect URL from the original iframe src
+            const originalSrc = iframeData.config.src;
+            const expectedRedirectUrl = this.extractRedirectUrl(originalSrc);
+            
+            if (expectedRedirectUrl) {
+                // Check if the new URL matches the expected redirect
+                // Compare both full URL and just the pathname
+                const expectedUrl = new URL(expectedRedirectUrl, window.location.origin);
+                const currentUrl = new URL(url);
+                
+                if (currentUrl.href === expectedUrl.href || 
+                    currentUrl.pathname === expectedUrl.pathname ||
+                    url.includes('thank-you')) {
+                    
+                    console.log('Smart Iframe: Redirect detected via URL update:', {
+                        current: url,
+                        expected: expectedRedirectUrl
+                    });
+                    
+                    // Perform the redirect
+                    this.performRedirect(uuid, expectedRedirectUrl);
+                }
+            }
+        }
     }
 
     // Handle form submit message from iframe
@@ -693,6 +720,24 @@ class SmartIframeLoader {
                 uuid,
                 url: redirectUrl,
                 detected: true,
+                timestamp: Date.now()
+            });
+        }
+    }
+
+    // Perform redirect (used by URL update handler)
+    performRedirect(uuid, redirectUrl) {
+        const iframeData = this.iframes.get(uuid);
+        if (!iframeData || !iframeData.config.allowRedirect) return;
+        
+        if (this.isValidUrl(redirectUrl)) {
+            console.log('Smart Iframe: Performing redirect to:', redirectUrl);
+            window.location.href = redirectUrl;
+            this.triggerEvent('iframe:redirect', {
+                uuid,
+                url: redirectUrl,
+                detected: true,
+                auto: true,
                 timestamp: Date.now()
             });
         }
