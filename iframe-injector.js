@@ -63,36 +63,79 @@
     document.addEventListener('submit', function(e) {
         const form = e.target;
         if (form && form.tagName === 'FORM') {
-            console.log('Smart Iframe Injector: Form submission detected');
-            
-            // Send form submission notification
-            const formMessage = {
-                type: 'FORM_SUBMIT',
-                uuid: uuid,
-                formId: form.id || 'unknown',
-                method: form.method || 'GET',
-                action: form.action || window.location.href,
-                timestamp: Date.now()
-            };
-            
-            if (window.parent && window.parent !== window) {
-                window.parent.postMessage(formMessage, '*');
-            }
-            
-            // Check for URL change after form submission
-            setTimeout(function() {
-                sendUrlUpdate();
-            }, 500);
-            
-            setTimeout(function() {
-                sendUrlUpdate();
-            }, 1000);
-            
-            setTimeout(function() {
-                sendUrlUpdate();
-            }, 2000);
+            console.log('Smart Iframe Injector: Form submission detected via submit event');
+            sendFormSubmissionMessage(form);
         }
-    });
+    }, true); // Use capture phase
+    
+    // Enhanced form detection function
+    function sendFormSubmissionMessage(form) {
+        console.log('Smart Iframe Injector: Sending form submission message', form);
+        
+        const formMessage = {
+            type: 'FORM_SUBMIT',
+            uuid: uuid,
+            formId: form.id || form.name || 'unknown',
+            method: form.method || 'GET',
+            action: form.action || window.location.href,
+            timestamp: Date.now()
+        };
+        
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage(formMessage, '*');
+            console.log('Smart Iframe Injector: Form submission message sent to parent:', formMessage);
+        }
+        
+        // Check for URL change after form submission
+        setTimeout(sendUrlUpdate, 500);
+        setTimeout(sendUrlUpdate, 1000);
+        setTimeout(sendUrlUpdate, 2000);
+    }
+    
+    // Method 3b: Monitor for button clicks (fallback)
+    document.addEventListener('click', function(e) {
+        const target = e.target;
+        
+        // Check if clicked element is submit button or inside a form
+        if (target.type === 'submit' || 
+            target.tagName === 'BUTTON' ||
+            (target.tagName === 'INPUT' && (target.type === 'submit' || target.type === 'button'))) {
+            
+            console.log('Smart Iframe Injector: Submit button clicked:', target);
+            
+            // Find parent form
+            const form = target.closest('form');
+            if (form) {
+                console.log('Smart Iframe Injector: Form found for submit button:', form);
+                // Delay to allow form processing
+                setTimeout(function() {
+                    sendFormSubmissionMessage(form);
+                }, 100);
+            }
+        }
+        
+        // Also check for any element with onclick that might submit forms
+        if (target.onclick || target.getAttribute('onclick')) {
+            console.log('Smart Iframe Injector: Element with onclick detected:', target);
+            setTimeout(function() {
+                // Check if URL changed after click (indicating form submission)
+                if (window.location.href !== lastUrl) {
+                    console.log('Smart Iframe Injector: URL changed after click - assuming form submission');
+                    const formMessage = {
+                        type: 'FORM_SUBMIT',
+                        uuid: uuid,
+                        formId: 'clicked_element',
+                        method: 'unknown',
+                        action: window.location.href,
+                        timestamp: Date.now()
+                    };
+                    if (window.parent && window.parent !== window) {
+                        window.parent.postMessage(formMessage, '*');
+                    }
+                }
+            }, 500);
+        }
+    }, true);
     
     // Method 4: Periodic URL check (fallback)
     let lastUrl = window.location.href;
