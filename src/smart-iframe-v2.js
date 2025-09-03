@@ -148,6 +148,32 @@ class SmartIframeLoader {
             this.handleIframeLoad(uuid);
         });
         
+        // Also detect when iframe reloads (e.g., after server redirect)
+        let loadCount = 0;
+        iframe.addEventListener('load', () => {
+            loadCount++;
+            if (loadCount > 1 && config.allowRedirect) {
+                console.log(`Smart Iframe: Iframe reloaded (load #${loadCount}), checking for redirect...`);
+                
+                // If form was submitted and iframe reloaded, assume successful redirect
+                const iframeData = this.iframes.get(uuid);
+                if (iframeData && iframeData.formSubmitted) {
+                    const expectedRedirectUrl = this.extractRedirectUrl(config.src);
+                    if (expectedRedirectUrl) {
+                        console.log('Smart Iframe: Redirect detected after iframe reload:', {
+                            loadCount: loadCount,
+                            formSubmitted: iframeData.formSubmitted,
+                            expectedRedirect: expectedRedirectUrl,
+                            trigger: 'iframe_reload_after_form_submit'
+                        });
+                        
+                        // Perform the redirect
+                        this.performRedirect(uuid, expectedRedirectUrl);
+                    }
+                }
+            }
+        });
+        
         return uuid;
     }
 
@@ -213,6 +239,32 @@ class SmartIframeLoader {
         // Send initial config when iframe loads
         iframe.addEventListener('load', () => {
             this.handleIframeLoad(uuid);
+        });
+        
+        // Also detect when iframe reloads (e.g., after server redirect)
+        let loadCount = 0;
+        iframe.addEventListener('load', () => {
+            loadCount++;
+            if (loadCount > 1 && config.allowRedirect) {
+                console.log(`Smart Iframe: Iframe reloaded (load #${loadCount}), checking for redirect...`);
+                
+                // If form was submitted and iframe reloaded, assume successful redirect
+                const iframeData = this.iframes.get(uuid);
+                if (iframeData && iframeData.formSubmitted) {
+                    const expectedRedirectUrl = this.extractRedirectUrl(config.src);
+                    if (expectedRedirectUrl) {
+                        console.log('Smart Iframe: Redirect detected after iframe reload:', {
+                            loadCount: loadCount,
+                            formSubmitted: iframeData.formSubmitted,
+                            expectedRedirect: expectedRedirectUrl,
+                            trigger: 'iframe_reload_after_form_submit'
+                        });
+                        
+                        // Perform the redirect
+                        this.performRedirect(uuid, expectedRedirectUrl);
+                    }
+                }
+            }
         });
         
         return uuid;
