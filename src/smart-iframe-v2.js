@@ -499,6 +499,9 @@ class SmartIframeLoader {
         const { url, pathname, search } = data;
         const oldUrl = iframeData.lastKnownUrl;
         
+        // Check if this is actually a URL change (not initial load)
+        const isUrlChange = oldUrl && oldUrl !== url;
+        
         iframeData.lastKnownUrl = url;
         
         this.triggerEvent('iframe:url-update', {
@@ -515,8 +518,8 @@ class SmartIframeLoader {
             this.checkLaravelValidation(uuid, url);
         }
         
-        // Check if this is a redirect to the expected URL
-        if (iframeData.config.allowRedirect) {
+        // Only check for redirect if this is a URL change (not initial load)
+        if (iframeData.config.allowRedirect && isUrlChange) {
             // Extract the redirect URL from the original iframe src
             const originalSrc = iframeData.config.src;
             const expectedRedirectUrl = this.extractRedirectUrl(originalSrc);
@@ -550,8 +553,9 @@ class SmartIframeLoader {
             }
             
             if (expectedRedirectUrl && (iframeData.formSubmitted || isRedirectMatch)) {
-                console.log('Smart Iframe: Redirect detected via URL update:', {
+                console.log('Smart Iframe: Redirect detected via URL change:', {
                     current: url,
+                    previous: oldUrl,
                     expected: expectedRedirectUrl,
                     formSubmitted: iframeData.formSubmitted,
                     isRedirectMatch: isRedirectMatch,
@@ -560,15 +564,21 @@ class SmartIframeLoader {
                 
                 // Perform the redirect
                 this.performRedirect(uuid, expectedRedirectUrl);
-            } else if (!iframeData.formSubmitted && !isRedirectMatch) {
-                console.log('Smart Iframe: URL update detected but no success indicators:', {
+            } else {
+                console.log('Smart Iframe: URL changed but no redirect conditions met:', {
                     url: url,
+                    previous: oldUrl,
                     formSubmitted: iframeData.formSubmitted,
                     isRedirectMatch: isRedirectMatch,
                     hasRedirectUrl: !!expectedRedirectUrl,
                     expectedRedirectUrl: expectedRedirectUrl
                 });
             }
+        } else if (iframeData.config.allowRedirect && !isUrlChange) {
+            console.log('Smart Iframe: Initial URL load (no redirect check):', {
+                url: url,
+                isInitialLoad: true
+            });
         }
     }
 
