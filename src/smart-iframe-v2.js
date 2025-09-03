@@ -136,7 +136,8 @@ class SmartIframeLoader {
             isReady: false,
             isCrossOrigin: config.isCrossOrigin,
             lastKnownUrl: config.src,
-            messageReceived: false
+            messageReceived: false,
+            formSubmitted: false
         });
         
         // Add styles
@@ -202,7 +203,8 @@ class SmartIframeLoader {
             isReady: false,
             isCrossOrigin: config.isCrossOrigin,
             lastKnownUrl: config.src,
-            messageReceived: false
+            messageReceived: false,
+            formSubmitted: false
         });
         
         // Add styles
@@ -513,37 +515,39 @@ class SmartIframeLoader {
             this.checkLaravelValidation(uuid, url);
         }
         
-        // Check if this is a redirect to the expected URL (only after form submission)
-        if (iframeData.config.allowRedirect && iframeData.formSubmitted) {
+        // Check if this is a redirect to the expected URL
+        if (iframeData.config.allowRedirect) {
             // Extract the redirect URL from the original iframe src
             const originalSrc = iframeData.config.src;
             const expectedRedirectUrl = this.extractRedirectUrl(originalSrc);
             
-            if (expectedRedirectUrl) {
-                // Check if the new URL matches the expected redirect
-                // Compare both full URL and just the pathname
-                const expectedUrl = new URL(expectedRedirectUrl, window.location.origin);
-                const currentUrl = new URL(url);
+            // Check if URL indicates form submission success (contains thank-you or matches redirect)
+            const isThankYouPage = url.includes('thank-you') || url.includes('/thank') || url.includes('success');
+            const isRedirectMatch = expectedRedirectUrl && (
+                url === expectedRedirectUrl ||
+                new URL(url).pathname === new URL(expectedRedirectUrl, window.location.origin).pathname
+            );
+            
+            if (expectedRedirectUrl && (iframeData.formSubmitted || isThankYouPage || isRedirectMatch)) {
+                console.log('Smart Iframe: Redirect detected via URL update:', {
+                    current: url,
+                    expected: expectedRedirectUrl,
+                    formSubmitted: iframeData.formSubmitted,
+                    isThankYouPage: isThankYouPage,
+                    isRedirectMatch: isRedirectMatch,
+                    trigger: iframeData.formSubmitted ? 'form_submitted' : 'success_page_detected'
+                });
                 
-                if (currentUrl.href === expectedUrl.href || 
-                    currentUrl.pathname === expectedUrl.pathname ||
-                    url.includes('thank-you')) {
-                    
-                    console.log('Smart Iframe: Redirect detected via URL update after form submission:', {
-                        current: url,
-                        expected: expectedRedirectUrl,
-                        formSubmitted: iframeData.formSubmitted
-                    });
-                    
-                    // Perform the redirect
-                    this.performRedirect(uuid, expectedRedirectUrl);
-                }
+                // Perform the redirect
+                this.performRedirect(uuid, expectedRedirectUrl);
+            } else if (!iframeData.formSubmitted && !isThankYouPage) {
+                console.log('Smart Iframe: URL update detected but no success indicators:', {
+                    url: url,
+                    formSubmitted: iframeData.formSubmitted,
+                    isThankYouPage: isThankYouPage,
+                    hasRedirectUrl: !!expectedRedirectUrl
+                });
             }
-        } else if (iframeData.config.allowRedirect && !iframeData.formSubmitted) {
-            console.log('Smart Iframe: URL update detected but no form submission yet:', {
-                url: url,
-                formSubmitted: iframeData.formSubmitted
-            });
         }
     }
 
