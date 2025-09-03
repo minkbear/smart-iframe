@@ -827,9 +827,10 @@ class SmartIframeLoader {
     extractRedirectUrl(url) {
         try {
             const urlObj = new URL(url);
-            const redirectParam = urlObj.searchParams.get('p') || 
-                                urlObj.searchParams.get('redirect') || 
-                                urlObj.searchParams.get('return');
+            // Prioritize 'redirect' parameter over 'p' and 'return'
+            const redirectParam = urlObj.searchParams.get('redirect') || 
+                                urlObj.searchParams.get('return') || 
+                                urlObj.searchParams.get('p');
             
             return redirectParam ? decodeURIComponent(redirectParam) : null;
         } catch {
