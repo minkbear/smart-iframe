@@ -520,58 +520,28 @@ class SmartIframeLoader {
         
         // Only check for redirect if this is a URL change (not initial load)
         if (iframeData.config.allowRedirect && isUrlChange) {
-            // Extract the redirect URL from the original iframe src
-            const originalSrc = iframeData.config.src;
-            const expectedRedirectUrl = this.extractRedirectUrl(originalSrc);
+            const expectedRedirectUrl = this.extractRedirectUrl(iframeData.config.src);
             
-            // Check if URL matches the expected redirect URL (exact match or contains redirect domain/path)
-            let isRedirectMatch = false;
-            if (expectedRedirectUrl) {
-                try {
-                    const expectedUrl = new URL(expectedRedirectUrl);
-                    const currentUrl = new URL(url);
-                    
-                    // Check exact match
-                    if (url === expectedRedirectUrl) {
-                        isRedirectMatch = true;
-                    }
-                    // Check pathname match (same path different domain)
-                    else if (currentUrl.pathname === expectedUrl.pathname) {
-                        isRedirectMatch = true;
-                    }
-                    // Check if current URL contains the redirect domain
-                    else if (url.includes(expectedUrl.hostname)) {
-                        isRedirectMatch = true;
-                    }
-                    // Check if redirect URL contains thank-you and current URL also has thank-you
-                    else if (expectedUrl.pathname.includes('thank-you') && url.includes('thank-you')) {
-                        isRedirectMatch = true;
-                    }
-                } catch (e) {
-                    console.warn('Error parsing URLs for redirect match:', e);
-                }
-            }
-            
-            if (expectedRedirectUrl && (iframeData.formSubmitted || isRedirectMatch)) {
-                console.log('Smart Iframe: Redirect detected via URL change:', {
+            // Only redirect if form was submitted (as per requirement.md)
+            if (expectedRedirectUrl && iframeData.formSubmitted) {
+                console.log('Smart Iframe: Redirect detected after form submission:', {
                     current: url,
                     previous: oldUrl,
                     expected: expectedRedirectUrl,
                     formSubmitted: iframeData.formSubmitted,
-                    isRedirectMatch: isRedirectMatch,
-                    trigger: iframeData.formSubmitted ? 'form_submitted' : 'redirect_url_match'
+                    trigger: 'form_submitted_and_url_changed'
                 });
                 
                 // Perform the redirect
                 this.performRedirect(uuid, expectedRedirectUrl);
             } else {
-                console.log('Smart Iframe: URL changed but no redirect conditions met:', {
+                console.log('Smart Iframe: URL changed but no redirect - waiting for form submission:', {
                     url: url,
                     previous: oldUrl,
                     formSubmitted: iframeData.formSubmitted,
-                    isRedirectMatch: isRedirectMatch,
                     hasRedirectUrl: !!expectedRedirectUrl,
-                    expectedRedirectUrl: expectedRedirectUrl
+                    expectedRedirectUrl: expectedRedirectUrl,
+                    reason: !iframeData.formSubmitted ? 'form_not_submitted' : 'no_redirect_url'
                 });
             }
         } else if (iframeData.config.allowRedirect && !isUrlChange) {
