@@ -502,6 +502,15 @@ class SmartIframeLoader {
         // Check if this is actually a URL change (not initial load)
         const isUrlChange = oldUrl && oldUrl !== url;
         
+        // Debug: Log URL comparison
+        console.log('Smart Iframe: URL Comparison Debug:', {
+            uuid: uuid,
+            oldUrl: oldUrl,
+            newUrl: url,
+            isUrlChange: isUrlChange,
+            formSubmitted: iframeData.formSubmitted
+        });
+        
         iframeData.lastKnownUrl = url;
         
         this.triggerEvent('iframe:url-update', {
