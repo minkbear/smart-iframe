@@ -4,7 +4,7 @@
     
     for(var i=0; i<params.length; i++){
         var pair = params[i].split('=');
-        if(decodeURIComponent(pair[0]) === 'position'){
+        if(decodeURIComponent(pair[0]) === 'p'){
             pos = decodeURIComponent(pair[1]);
             break;
         }
@@ -23,7 +23,7 @@
                 if(src){
                     var newSrc = src.replace(/(p=)[^&]*/, 'p=' + encodeURIComponent(pos));
                     el.setAttribute('data-src', newSrc);
-                    console.log('Position updated to:', pos);
+                    console.log('P updated to:', pos);
                 }
             }
             
