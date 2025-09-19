@@ -1,18 +1,33 @@
 (function(){
-    var p=new URLSearchParams(window.location.search).get('position');
-    if(p){
-        var check=setInterval(function(){
-            var el=document.querySelector('.smartIframe');
+    var params = window.location.search.substring(1).split('&');
+    var pos = null;
+    
+    for(var i=0; i<params.length; i++){
+        var pair = params[i].split('=');
+        if(decodeURIComponent(pair[0]) === 'position'){
+            pos = decodeURIComponent(pair[1]);
+            break;
+        }
+    }
+    
+    if(pos){
+        var c = 0;
+        var interval = setInterval(function(){
+            c++;
+            var el = document.querySelector('.smartIframe');
+            
             if(el){
-                clearInterval(check);
-                var src=el.getAttribute('data-src');
+                clearInterval(interval);
+                var src = el.getAttribute('data-src');
+                
                 if(src){
-                    var url=new URL(src);
-                    url.searchParams.set('p',p);
-                    el.setAttribute('data-src',url.toString());
-                    console.log('Position updated:',p);
+                    var newSrc = src.replace(/(p=)[^&]*/, 'p=' + encodeURIComponent(pos));
+                    el.setAttribute('data-src', newSrc);
+                    console.log('Position updated to:', pos);
                 }
             }
-        },200);
+            
+            if(c > 25) clearInterval(interval);
+        }, 200);
     }
 })();
