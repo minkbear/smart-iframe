@@ -16,12 +16,19 @@
     }
     
     console.log('All URL Parameters:', urlParams);
-    
-    var baseSrc = 'https://app.ofonline.net/careers/';
+
+    var container = document.getElementById('iframe-container');
+
+    // baseSrc override: data-base-src on container, then global var, then default (backward compatible)
+    var baseSrc = (container && container.getAttribute('data-base-src'))
+        || window.SMART_IFRAME_BASE_SRC
+        || 'https://app.ofonline.net/careers/';
+
+    var sep = baseSrc.indexOf('?') === -1 ? '?' : '&';
     if(qParams.length > 0){
-        baseSrc += '?' + qParams.join('&');
+        baseSrc += sep + qParams.join('&');
     } else {
-        baseSrc += '?redirect=https://www.outsourcingfactory.co.th/%E0%B8%A3%E0%B8%B1%E0%B8%9A%E0%B8%AA%E0%B8%A1%E0%B8%B1%E0%B8%84%E0%B8%A3%E0%B8%87%E0%B8%B2%E0%B8%99/thank-you.html';
+        baseSrc += sep + 'redirect=https://www.outsourcingfactory.co.th/%E0%B8%A3%E0%B8%B1%E0%B8%9A%E0%B8%AA%E0%B8%A1%E0%B8%B1%E0%B8%84%E0%B8%A3%E0%B8%87%E0%B8%B2%E0%B8%99/thank-you.html';
     }
     
     console.log('Final iframe URL:', baseSrc);
@@ -40,7 +47,6 @@
     script.src = 'https://cdn.jsdelivr.net/gh/minkbear/smart-iframe@febc6ee/dist/smart-iframe-v2.min.js';
     div.appendChild(script);
     
-    var container = document.getElementById('iframe-container');
     if(container) {
         container.appendChild(div);
     }
