@@ -25,7 +25,22 @@ const MIME = {
 };
 
 http.createServer((req, res) => {
-    const urlPath = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+    const reqUrl = new URL(req.url, 'http://x');
+    const urlPath = decodeURIComponent(reqUrl.pathname);
+
+    // Simulate an Inertia external redirect (inertia.location()):
+    // any request to a path ending in "inertia-409" gets 409 + X-Inertia-Location.
+    // Target URL comes from ?to=, defaulting to the local thank-you page.
+    if (urlPath.endsWith('inertia-409')) {
+        const to = reqUrl.searchParams.get('to') ||
+            'http://localhost:8000/tests/v3/thank-you.html';
+        res.writeHead(409, {
+            'X-Inertia-Location': to,
+            'Cache-Control': 'no-store'
+        }).end();
+        return;
+    }
+
     let filePath = path.join(ROOT, urlPath);
     if (!filePath.startsWith(ROOT)) {
         res.writeHead(403).end('Forbidden');

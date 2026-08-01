@@ -155,6 +155,19 @@
         }
     }
 
+    // Inertia external redirect (inertia.location()): 409 + X-Inertia-Location
+    // header, empty body. Inertia will hard-navigate THIS iframe to the external
+    // URL — tell the parent first so it can redirect itself instead of letting
+    // the external page render inside the iframe.
+    function handleHardLocation(location) {
+        if (!location) return;
+        send('SIF3_NAVIGATE', {
+            url: resolveUrl(location),
+            oldUrl: window.location.href,
+            trigger: 'hard-location'
+        });
+    }
+
     // ---------------------------------------------------------- XHR
 
     function patchXHR() {
@@ -187,14 +200,17 @@
                 if (meta) {
                     this.addEventListener('load', function () {
                         try {
+                            if (this.status === 409) {
+                                handleHardLocation(this.getResponseHeader('x-inertia-location'));
+                                return;
+                            }
                             var isInertia = meta.inertia ||
                                 !!this.getResponseHeader('x-inertia');
                             if (!isInertia) return;
                             var page = JSON.parse(this.responseText);
                             handleInertiaPage(page);
                         } catch (e) {
-                            // 409 hard-visit or non-JSON body: nothing to parse.
-                            // uuid recovery is covered by sessionStorage on reload.
+                            // Non-JSON body: nothing to parse.
                         }
                     });
                 }
@@ -259,6 +275,10 @@
                 if (inertia) {
                     promise = promise.then(function (response) {
                         try {
+                            if (response.status === 409) {
+                                handleHardLocation(response.headers.get('x-inertia-location'));
+                                return response;
+                            }
                             var isInertia = inertia ||
                                 response.headers.get('x-inertia');
                             if (isInertia) {

@@ -32,7 +32,7 @@ Receivers MUST ignore any message where `v !== 3 || source !== 'smart-iframe'`.
 |---|---|---|
 | `SIF3_READY` | `{ url, mode: 'injector'\|'module', hasInertia: boolean }` | injector/module init completed. `uuid` may be `null` if lost (hard visit). |
 | `SIF3_RESIZE` | `{ height: number }` | ResizeObserver detected content height change (debounced ~100ms, only when Δ > 1px). |
-| `SIF3_NAVIGATE` | `{ url, oldUrl, trigger: 'pushState'\|'replaceState'\|'popstate'\|'inertia' }` | SPA URL changed. |
+| `SIF3_NAVIGATE` | `{ url, oldUrl, trigger: 'pushState'\|'replaceState'\|'popstate'\|'inertia'\|'hard-location' }` | SPA URL changed. `'hard-location'` = Inertia external redirect detected (response `409` + `X-Inertia-Location` header, from `inertia.location()`); sent just before Inertia hard-navigates the iframe to that URL, so the parent can redirect itself instead of letting the external page render inside the iframe. |
 | `SIF3_SUBMIT` | `{ method: 'post'\|'put'\|'patch'\|'delete', url }` | Non-GET Inertia visit started (XHR/fetch with `X-Inertia` request header, or `router.on('before')`). |
 | `SIF3_VALIDATION_ERROR` | `{ errors: { field: message }, url }` | Inertia response carried non-empty `props.errors`. Note: Inertia returns these with HTTP **200** — status codes are not the signal. |
 | `SIF3_SUCCESS` | `{ url, component }` | Inertia response parsed OK with empty/absent `props.errors`. |

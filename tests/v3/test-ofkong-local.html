@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Iframe v3 — of-kong local test (parent)</title>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 0; padding: 20px; background: #fafafa; }
+        h1 { font-size: 20px; }
+        .row { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+        .col { flex: 1; min-width: 420px; }
+        .frame-box { border: 2px dashed #bbb; border-radius: 8px; padding: 8px; background: #fff; }
+        #eventlog { background: #1e1e2e; color: #a6e3a1; padding: 12px; border-radius: 8px;
+                    font-family: monospace; font-size: 12px; white-space: pre-wrap;
+                    max-height: 600px; overflow-y: auto; }
+        #eventlog .err { color: #f38ba8; }
+        #eventlog .warn { color: #f9e2af; }
+        button { margin: 4px; padding: 8px 12px; border: none; border-radius: 6px;
+                 background: #555; color: #fff; cursor: pointer; }
+        .hint { font-size: 13px; color: #666; max-width: 900px; }
+    </style>
+</head>
+<body>
+    <h1>Smart Iframe v3 × of-kong /careers (localhost:3333)</h1>
+    <p class="hint">
+        เตรียม: <code>cd ~/works/of-kong && npm run dev</code> (port 3333, ต้องมี injector v3 ใน
+        inertia_layout.edge แล้ว) + <code>npm run serve:parent</code> ใน of-smart-iframe (port 8000)<br>
+        ทดสอบ: ① โหลดแล้วต้องเห็น <code>iframe:ready (mode: injector)</code> + <code>iframe:resize</code>
+        ② submit ฟอร์มว่าง → <code>iframe:validation-error</code> + ไม่ redirect
+        ③ submit ครบ → <code>iframe:navigate (hard-location)</code> → parent เด้งไป thank-you.html
+    </p>
+
+    <div class="row">
+        <div class="col">
+            <div class="frame-box">
+                <div class="smartIframe"
+                     data-src="http://localhost:3333/careers?redirect=http://localhost:8000/tests/v3/thank-you.html"
+                     data-initial-height="800"
+                     data-min-height="400"
+                     data-max-height="4000"
+                     data-debug-mode="true"></div>
+            </div>
+        </div>
+
+        <div class="col">
+            <h3>Event log</h3>
+            <button onclick="document.getElementById('eventlog').textContent=''">Clear log</button>
+            <div id="eventlog"></div>
+        </div>
+    </div>
+
+    <script src="../../src/smart-iframe-v3.js"></script>
+    <script>
+        var logEl = document.getElementById('eventlog');
+        function log(cls, msg) {
+            var line = document.createElement('div');
+            if (cls) line.className = cls;
+            line.textContent = new Date().toLocaleTimeString() + '  ' + msg;
+            logEl.appendChild(line);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        ['iframe:ready', 'iframe:resize', 'iframe:navigate', 'iframe:form-submit',
+         'iframe:validation-error', 'iframe:success', 'iframe:redirect'].forEach(function (name) {
+            smartIframeV3.on(name, function (data) {
+                var cls = name === 'iframe:validation-error' ? 'err'
+                        : name === 'iframe:redirect' ? 'warn' : '';
+                log(cls, name + '  ' + JSON.stringify(data));
+            });
+        });
+    </script>
+</body>
+</html>

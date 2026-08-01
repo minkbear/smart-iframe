@@ -33,6 +33,9 @@
             <button onclick="submitFetch('fixtures/inertia-success.json')">fetch submit → success (+pushState)</button>
         </div>
         <div>
+            <button onclick="submit409()">XHR submit → 409 external redirect (inertia.location)</button>
+        </div>
+        <div>
             <button onclick="navOnly()" class="gray">pushState only (no submit)</button>
             <button onclick="grow()" class="gray">Grow content +300px</button>
             <button onclick="shrink()" class="gray">Shrink content</button>
@@ -89,6 +92,25 @@
                 document.getElementById('app').insertAdjacentHTML('beforeend',
                     '<h2>✅ ' + (page.component || 'Success') + '</h2>');
             }
+        }
+
+        // Simulate a successful submit answered with inertia.location():
+        // 409 + X-Inertia-Location, then Inertia hard-navigates this iframe there.
+        function submit409() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'fixtures/inertia-409');
+            xhr.setRequestHeader('X-Inertia', 'true');
+            xhr.onload = function () {
+                if (xhr.status === 409) {
+                    var to = xhr.getResponseHeader('X-Inertia-Location');
+                    log('409 received → hard navigate to ' + to);
+                    // Small delay mirrors Inertia's async handling; the injector has
+                    // already told the parent, which should redirect first.
+                    setTimeout(function () { window.location.href = to; }, 50);
+                }
+            };
+            xhr.send(JSON.stringify({ email: 'a@b.c', name: 'test' }));
+            log('POST (XHR) fixtures/inertia-409');
         }
 
         function navOnly() {
