@@ -54,8 +54,19 @@
     div.setAttribute('data-debug-mode', 'false');
     div.setAttribute('data-initial-height', '3000');
     
+    // เลือก loader ตามปลายทางของ iframe:
+    // - ofkong (AdonisJS + Inertia) ต้องใช้ v3 (postMessage protocol SIF3_* คู่กับ
+    //   iframe-injector-v3 ที่ฝังใน ofkong) — v2 ฟัง protocol เก่า คุยกันไม่รู้เรื่อง
+    // - ปลายทางอื่น (Laravel MPA เดิม เช่น app.ofonline.net) ยังใช้ v2 pin commit เดิม
+    // override ได้ด้วย data-loader-version="2|3" บน container หรือ window.SMART_IFRAME_LOADER_VERSION
+    var loaderVersion = (container && container.getAttribute('data-loader-version'))
+        || window.SMART_IFRAME_LOADER_VERSION
+        || (/\/\/ofkong\./.test(baseSrc) ? '3' : '2');
+
     var script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/gh/minkbear/smart-iframe@febc6ee/dist/smart-iframe-v2.min.js';
+    script.src = String(loaderVersion) === '3'
+        ? 'https://cdn.jsdelivr.net/gh/minkbear/smart-iframe@main/dist/smart-iframe-v3.min.js'
+        : 'https://cdn.jsdelivr.net/gh/minkbear/smart-iframe@febc6ee/dist/smart-iframe-v2.min.js';
     div.appendChild(script);
     
     if(container) {
