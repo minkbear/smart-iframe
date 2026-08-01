@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Iframe v3 — Inertia Test (parent)</title>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 0; padding: 20px; background: #fafafa; }
+        h1 { font-size: 20px; }
+        .row { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+        .col { flex: 1; min-width: 380px; }
+        .frame-box { border: 2px dashed #bbb; border-radius: 8px; padding: 8px; background: #fff; }
+        #eventlog { background: #1e1e2e; color: #a6e3a1; padding: 12px; border-radius: 8px;
+                    font-family: monospace; font-size: 12px; white-space: pre-wrap;
+                    max-height: 500px; overflow-y: auto; }
+        #eventlog .err { color: #f38ba8; }
+        #eventlog .warn { color: #f9e2af; }
+        button { margin: 4px; padding: 8px 12px; border: none; border-radius: 6px;
+                 background: #555; color: #fff; cursor: pointer; }
+        .hint { font-size: 13px; color: #666; }
+    </style>
+</head>
+<body>
+    <h1>Smart Iframe v3 — Inertia Test (parent :8000, iframe :8001)</h1>
+    <p class="hint">
+        Run <code>npm run serve:parent</code> (port 8000) and <code>npm run serve:iframe:v3</code> (port 8001 — POST-friendly, required for the submit fixtures),
+        then open <code>http://localhost:8000/tests/v3/test-v3-inertia.html</code>.
+        Expected: validation error → event logged, NO redirect. Success submit → parent redirects to thank-you.html.
+    </p>
+
+    <div class="row">
+        <div class="col">
+            <h3>Iframe #1 (with redirect param)</h3>
+            <div class="frame-box">
+                <div class="smartIframe"
+                     data-src="http://localhost:8001/tests/v3/fake-inertia-app.html?redirect=http://localhost:8000/tests/v3/thank-you.html"
+                     data-initial-height="500"
+                     data-min-height="300"
+                     data-max-height="2000"
+                     data-debug-mode="true"></div>
+            </div>
+
+            <h3>Iframe #2 (same origin, no redirect param — correlation test)</h3>
+            <div class="frame-box">
+                <div class="smartIframe"
+                     data-src="http://localhost:8001/tests/v3/fake-inertia-app.html"
+                     data-allow-redirect="false"
+                     data-initial-height="400"
+                     data-debug-mode="true"></div>
+            </div>
+        </div>
+
+        <div class="col">
+            <h3>Event log</h3>
+            <div>
+                <button onclick="spoofWrongSource()">Spoof: forged SIF3_SUCCESS (wrong source/origin)</button>
+                <button onclick="document.getElementById('eventlog').textContent=''">Clear log</button>
+            </div>
+            <div id="eventlog"></div>
+        </div>
+    </div>
+
+    <script src="../../src/smart-iframe-v3.js"></script>
+    <script>
+        var logEl = document.getElementById('eventlog');
+        function log(cls, msg) {
+            var line = document.createElement('div');
+            if (cls) line.className = cls;
+            line.textContent = new Date().toLocaleTimeString() + '  ' + msg;
+            logEl.appendChild(line);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        ['iframe:ready', 'iframe:resize', 'iframe:navigate', 'iframe:form-submit',
+         'iframe:validation-error', 'iframe:success', 'iframe:redirect'].forEach(function (name) {
+            smartIframeV3.on(name, function (data) {
+                var cls = name === 'iframe:validation-error' ? 'err'
+                        : name === 'iframe:redirect' ? 'warn' : '';
+                log(cls, name + '  ' + JSON.stringify(data));
+            });
+        });
+
+        // Spoofing check: a forged message posted from the parent window itself.
+        // event.source !== any iframe contentWindow and event.origin is :8000,
+        // not the expected :8001 — the loader must ignore it (no iframe:success log).
+        function spoofWrongSource() {
+            var anyUuid = smartIframeV3.getAllIframes()[0]?.uuid || 'iframe_fake';
+            window.postMessage({
+                v: 3, source: 'smart-iframe', type: 'SIF3_SUCCESS',
+                uuid: anyUuid, timestamp: Date.now(),
+                payload: { url: 'http://evil.example/x', component: 'Spoof' }
+            }, '*');
+            log('warn', '[spoof] forged SIF3_SUCCESS posted — expect NO iframe:success line after this');
+        }
+    </script>
+</body>
+</html>

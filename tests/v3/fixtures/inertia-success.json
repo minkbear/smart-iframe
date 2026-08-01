@@ -1,0 +1,9 @@
+{
+  "component": "ThankYou",
+  "props": {
+    "errors": {},
+    "message": "Application received"
+  },
+  "url": "/tests/v3/fake-inertia-app.html?page=thank-you",
+  "version": "test"
+}

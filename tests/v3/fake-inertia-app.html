@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake Inertia App (v3 test)</title>
+    <!-- Injector first, like placing it in <head> of the edge layout -->
+    <script src="../../src/iframe-injector-v3.js"></script>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 0; padding: 20px; background: #f0f4ff; }
+        h1 { font-size: 18px; }
+        button, a.btn { display: inline-block; margin: 4px; padding: 10px 14px; border: none; border-radius: 6px;
+                 background: #4f6ef7; color: #fff; cursor: pointer; font-size: 14px; text-decoration: none; }
+        button.warn { background: #e67e22; }
+        button.gray { background: #7f8c8d; }
+        #applog { background: #fff; border: 1px solid #ccd; padding: 10px; margin-top: 12px;
+                  font-family: monospace; font-size: 12px; white-space: pre-wrap; min-height: 60px; }
+        #filler { background: repeating-linear-gradient(45deg, #dde, #dde 10px, #eef 10px, #eef 20px); }
+        .errors { color: #c0392b; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div id="app" data-page='{"component":"ApplyForm","props":{"errors":{}},"url":"/","version":"test"}'>
+        <h1>🧪 Fake Inertia App</h1>
+        <p>Simulates @inertiajs/vue3 behavior: XHR/fetch with <code>X-Inertia</code> header + pushState. No backend needed.</p>
+
+        <div>
+            <button onclick="submitXHR('fixtures/inertia-errors.json')" class="warn">XHR submit → validation errors</button>
+            <button onclick="submitXHR('fixtures/inertia-success.json')">XHR submit → success (+pushState)</button>
+        </div>
+        <div>
+            <button onclick="submitFetch('fixtures/inertia-errors.json')" class="warn">fetch submit → validation errors</button>
+            <button onclick="submitFetch('fixtures/inertia-success.json')">fetch submit → success (+pushState)</button>
+        </div>
+        <div>
+            <button onclick="navOnly()" class="gray">pushState only (no submit)</button>
+            <button onclick="grow()" class="gray">Grow content +300px</button>
+            <button onclick="shrink()" class="gray">Shrink content</button>
+            <a class="btn warn" href="fake-inertia-app.html?hard=1">Hard visit (drops ?uuid=)</a>
+        </div>
+
+        <div id="applog">app log:</div>
+        <div id="filler" style="height:0"></div>
+    </div>
+
+    <script>
+        function log(msg) {
+            document.getElementById('applog').textContent += '\n' + msg;
+        }
+
+        // Simulate an Inertia visit over XHR (what axios does)
+        function submitXHR(fixture) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', fixture);
+            xhr.setRequestHeader('X-Inertia', 'true');
+            xhr.setRequestHeader('X-Inertia-Version', 'test');
+            xhr.onload = function () {
+                var page = JSON.parse(xhr.responseText);
+                applyPage(page, 'XHR');
+            };
+            xhr.send(JSON.stringify({ email: '', name: '' }));
+            log('POST (XHR) ' + fixture);
+        }
+
+        // Simulate an Inertia visit over fetch
+        function submitFetch(fixture) {
+            fetch(fixture, {
+                method: 'POST',
+                headers: { 'X-Inertia': 'true', 'X-Inertia-Version': 'test' },
+                body: JSON.stringify({ email: '', name: '' })
+            }).then(function (r) { return r.json(); })
+              .then(function (page) { applyPage(page, 'fetch'); });
+            log('POST (fetch) ' + fixture);
+        }
+
+        // What Inertia does with a page response: render + pushState on URL change
+        function applyPage(page, via) {
+            var errors = page.props && page.props.errors;
+            if (errors && Object.keys(errors).length > 0) {
+                log(via + ' response: validation errors → stay on page');
+                log('errors: ' + JSON.stringify(errors));
+                var el = document.createElement('p');
+                el.className = 'errors';
+                el.textContent = 'Validation failed: ' + Object.values(errors).join(' ');
+                document.getElementById('app').appendChild(el);
+            } else {
+                log(via + ' response: success → pushState to ' + page.url);
+                history.pushState({}, '', page.url);
+                document.getElementById('app').insertAdjacentHTML('beforeend',
+                    '<h2>✅ ' + (page.component || 'Success') + '</h2>');
+            }
+        }
+
+        function navOnly() {
+            history.pushState({}, '', 'fake-inertia-app.html?page=' + Date.now());
+            log('pushState only');
+        }
+
+        var fillerHeight = 0;
+        function grow() {
+            fillerHeight += 300;
+            document.getElementById('filler').style.height = fillerHeight + 'px';
+            log('content grown to +' + fillerHeight + 'px');
+        }
+        function shrink() {
+            fillerHeight = 0;
+            document.getElementById('filler').style.height = '0';
+            log('content shrunk');
+        }
+    </script>
+</body>
+</html>

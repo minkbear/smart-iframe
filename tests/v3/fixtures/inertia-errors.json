@@ -1,0 +1,11 @@
+{
+  "component": "ApplyForm",
+  "props": {
+    "errors": {
+      "email": "The email field is required.",
+      "name": "The name field is required."
+    }
+  },
+  "url": "/tests/v3/fake-inertia-app.html",
+  "version": "test"
+}
