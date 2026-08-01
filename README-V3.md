@@ -45,6 +45,30 @@ Attributes ที่รองรับ: `data-src`, `data-allow-resize`, `data-a
 Attributes ของ v2 ที่ **ตัดออก** ใน v3: `data-laravel-mode`, `data-validation-detection`,
 `data-error-params`, `data-success-params`, `data-success-patterns`, `data-error-patterns`
 
+### ทางเลือก: ฝังผ่าน `extra-scripts/iframe-params.js` (แบบที่เว็บลูกค้าใช้ใน production)
+
+ถ้าไม่อยากให้เว็บลูกค้าเขียน `.smartIframe` เอง ใช้ helper ตัวนี้แทน — มันจะสร้าง container
+ให้อัตโนมัติ พร้อมความสามารถเพิ่ม:
+
+- **ส่งต่อ query params ของหน้าเว็บลูกค้าเข้า iframe URL** (เช่น `?utm_source=...`, `?p=...`)
+- ถ้าไม่มี params เลย จะใส่ `redirect=<thank-you ของเว็บลูกค้า>` เป็น default ให้
+- `data-base-src` — override URL ฟอร์มปลายทาง (default: careers ของ OF)
+- `data-max-width` — บีบความกว้าง iframe (กันเมนู desktop ของเว็บใน iframe โผล่)
+
+ฝั่งเว็บลูกค้าวางแค่นี้:
+
+```html
+<div id="iframe-container"
+     data-base-src="https://ofkong.ofonline.net/careers"
+     data-max-width="700"></div>
+<script src="https://cdn.jsdelivr.net/gh/minkbear/smart-iframe@<commit>/extra-scripts/iframe-params.js"></script>
+```
+
+> ⚠️ **สถานะปัจจุบัน**: `iframe-params.js` ยังโหลด `smart-iframe-v2.min.js` (pin commit `febc6ee`)
+> การย้ายเว็บลูกค้ามา v3 = แก้บรรทัด `script.src` ใน `iframe-params.js` ให้ชี้
+> `dist/smart-iframe-v3.min.js` (pin commit ใหม่) แล้ว pin commit ของ `iframe-params.js`
+> ใน snippet ฝั่งเว็บลูกค้าตาม — ทำหลัง verify กับแอปจริงแล้วเท่านั้น (ดูแผน migration ท้ายเอกสาร)
+
 ### Redirect หลัง submit สำเร็จ
 
 ใส่ query param `redirect` (หรือ `return` / `p`) ใน `data-src` เหมือน v2
