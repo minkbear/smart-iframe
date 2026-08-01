@@ -35,6 +35,17 @@
     
     var div = document.createElement('div');
     div.className = 'smartIframe';
+
+    // maxWidth override: data-max-width on container, then global var (e.g. "700" or "700px")
+    // ใช้บีบ iframe ให้แคบกว่า breakpoint มือถือของเว็บใน iframe เพื่อไม่ให้เมนู desktop แสดง
+    var maxWidth = (container && container.getAttribute('data-max-width'))
+        || window.SMART_IFRAME_MAX_WIDTH;
+    if(maxWidth){
+        div.style.maxWidth = /^\d+$/.test(String(maxWidth)) ? maxWidth + 'px' : maxWidth;
+        div.style.marginLeft = 'auto';
+        div.style.marginRight = 'auto';
+    }
+
     div.setAttribute('data-src', baseSrc);
     div.setAttribute('data-allow-resize', 'true');
     div.setAttribute('data-allow-redirect', 'true');
